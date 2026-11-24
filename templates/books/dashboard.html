@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Qidiruv paneli & Tavsiya teglari -->
+<!-- Qidiruv paneli -->
 <div class="mb-8">
   <form method="get" class="flex gap-2.5 shadow-xl rounded-2xl bg-white p-2.5 border-2 border-indigo-100 hover:border-indigo-300 transition-colors">
     <div class="relative flex-1">
@@ -25,7 +25,7 @@
     {% for b in top_books %}
     <a href="{% url 'book_detail' b.id %}" class="flex items-center gap-3.5 bg-white p-3.5 rounded-2xl border-2 {% if forloop.counter == 1 %}border-amber-300 shadow-amber-100{% elif forloop.counter == 2 %}border-blue-300 shadow-blue-100{% else %}border-rose-300 shadow-rose-100{% endif %} shadow-lg hover:-translate-y-1 transition-all">
       <div class="relative shrink-0">
-        {% if b.cover_image %}<img src="{{ b.cover_image.url }}" alt="{{ b.title }}" class="w-14 h-20 rounded-xl object-cover shadow-md">{% else %}<div class="w-14 h-20 rounded-xl bg-gradient-to-br {{ b.cover_color }} flex items-center justify-center text-white font-black text-sm">#{{ forloop.counter }}</div>{% endif %}
+        {% if b.cover_image %}<img src="{{ b.cover_image.url }}" alt="{{ b.title }}" class="w-14 h-20 rounded-xl object-cover shadow-md ring-1 ring-slate-900/10">{% else %}<div class="w-14 h-20 rounded-xl bg-gradient-to-br {{ b.cover_color }} flex items-center justify-center text-white font-black text-sm">#{{ forloop.counter }}</div>{% endif %}
         <span class="absolute -top-2 -left-2 w-6 h-6 rounded-full text-xs font-black flex items-center justify-center text-white shadow-md {% if forloop.counter == 1 %}bg-amber-500{% elif forloop.counter == 2 %}bg-blue-500{% else %}bg-rose-500{% endif %}">{{ forloop.counter }}</span>
       </div>
       <div class="overflow-hidden">
@@ -40,7 +40,7 @@
 {% endif %}
 
 <div class="flex flex-col md:flex-row gap-7">
-  <!-- Chap taraf: Rang-barang Kategoriyalar -->
+  <!-- Chap taraf: Kategoriyalar -->
   <aside class="w-full md:w-64 shrink-0">
     <div class="bg-white rounded-3xl border border-slate-200/90 p-5 shadow-sm sticky top-24">
       <h3 class="font-bold text-indigo-500 text-xs uppercase tracking-wider mb-3.5 flex items-center gap-1"><span>📑</span> Kategoriyalar</h3>
@@ -59,20 +59,16 @@
     </div>
   </aside>
 
-  <!-- O'ng taraf: Kitoblar ro'yxati -->
+  <!-- O'ng taraf: Kitoblar ro'yxati (Haqiqiy 3D kitob ko'rinishi) -->
   <section class="flex-1">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-extrabold text-slate-900">
-        {% if selected_category %}{{ selected_category }}{% elif q %}«{{ q }}» qidiruvi{% else %}Kutubxona Katalogi{% endif %}
-        <span class="text-sm font-bold text-indigo-600 ml-1">({{ books.count }} ta)</span>
-      </h2>
+      <h2 class="text-xl font-extrabold text-slate-900">{% if selected_category %}{{ selected_category }}{% elif q %}«{{ q }}» qidiruvi{% else %}Kutubxona Katalogi{% endif %}<span class="text-sm font-bold text-indigo-600 ml-1">({{ books.count }})</span></h2>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for book in books %}
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col group">
-        <a href="{% url 'book_detail' book.id %}" class="relative h-60 bg-slate-900/5 flex items-center justify-center overflow-hidden">
-          {% if book.cover_image %}<img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">{% else %}<div class="w-full h-full bg-gradient-to-br {{ book.cover_color }} p-4 flex flex-col justify-between text-white"><h4 class="font-bold text-lg">{{ book.title }}</h4></div>{% endif %}
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3"><span class="text-xs text-white font-bold bg-indigo-600/90 px-3 py-1 rounded-full">O'qish uchun bosing →</span></div>
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden flex flex-col group">
+        <a href="{% url 'book_detail' book.id %}" class="relative h-64 bg-gradient-to-b from-slate-100 via-slate-50 to-slate-200/70 p-4 flex items-center justify-center overflow-hidden">
+          {% if book.cover_image %}<img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="h-56 w-auto max-w-[170px] rounded-xl object-cover shadow-2xl group-hover:scale-105 group-hover:-rotate-1 transition-all duration-300 ring-1 ring-black/10">{% else %}<div class="w-36 h-52 rounded-xl bg-gradient-to-br {{ book.cover_color }} p-4 flex flex-col justify-between text-white shadow-xl"><h4 class="font-bold text-base">{{ book.title }}</h4></div>{% endif %}
           <span class="absolute top-3 left-3 text-[11px] {% if 'Diniy' in book.category %}bg-emerald-600{% elif 'mumtoz' in book.category %}bg-amber-600{% elif 'Jahon' in book.category %}bg-purple-600{% elif 'rivojlanish' in book.category %}bg-blue-600{% else %}bg-rose-600{% endif %} text-white px-3 py-1 rounded-full font-black shadow-md">{{ book.category }}</span>
         </a>
         <div class="p-4.5 flex-1 flex flex-col justify-between">

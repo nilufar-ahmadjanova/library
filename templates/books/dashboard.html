@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Qidiruv paneli -->
+<form method="get" class="mb-6 flex gap-2.5">
+  <div class="relative flex-1">
+    <input type="text" name="q" value="{{ q }}" placeholder="Kitob nomi yoki muallif bo'yicha qidirish..." class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 bg-white text-base focus:ring-2 focus:ring-blue-500 shadow-sm">
+    <span class="absolute left-4 top-3.5 text-slate-400 text-lg">🔍</span>
+  </div>
+  {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+  <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-bold rounded-xl shadow-sm">Qidirish</button>
+  {% if q or selected_category %}<a href="{% url 'dashboard' %}" class="px-5 py-3 bg-slate-200 text-slate-700 text-base font-bold rounded-xl flex items-center">Tozalash</a>{% endif %}
+</form>
+
+<!-- 🔥 Eng ko'p o'qilgan kitoblar (Top 3) -->
+{% if top_books and not q and not selected_category %}
+<div class="mb-8 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 p-5 rounded-2xl border border-amber-200">
+  <div class="flex items-center justify-between mb-3.5">
+    <h3 class="font-extrabold text-slate-900 text-base sm:text-lg flex items-center gap-2">🔥 Eng ko'p o'qilgan kitoblar</h3>
+    <span class="text-xs text-amber-700 font-bold bg-amber-100 px-3 py-1 rounded-full">TOP 3</span>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+    {% for b in top_books %}
+    <a href="{% url 'book_detail' b.id %}" class="flex items-center gap-3.5 bg-white p-3 rounded-xl border border-amber-100 shadow-sm hover:border-blue-500 transition-colors">
+      {% if b.cover_image %}<img src="{{ b.cover_image.url }}" alt="{{ b.title }}" class="w-14 h-20 rounded-lg object-cover shadow-sm shrink-0">{% else %}<div class="w-14 h-20 rounded-lg bg-gradient-to-br {{ b.cover_color }} shrink-0 flex items-center justify-center text-white font-black">#{{ forloop.counter }}</div>{% endif %}
+      <div class="overflow-hidden">
+        <h4 class="font-bold text-sm sm:text-base text-slate-900 truncate">{{ b.title }}</h4>
+        <p class="text-xs sm:text-sm text-slate-500 truncate mt-0.5">{{ b.author }}</p>
+        <span class="text-xs text-emerald-600 font-bold mt-1 inline-block">👁 {{ b.views_count }} mutolaa</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="flex flex-col md:flex-row gap-6">
+  <!-- Chap taraf: Kategoriyalar -->
+  <aside class="w-full md:w-64 shrink-0">
+    <div class="bg-white rounded-2xl border border-slate-200 p-4.5 shadow-sm sticky top-20">
+      <h3 class="font-bold text-slate-400 text-xs uppercase tracking-wider mb-3">Kategoriyalar</h3>
+      <nav class="space-y-1.5">
+        <a href="{% url 'dashboard' %}{% if q %}?q={{ q }}{% endif %}" class="flex justify-between items-center px-3.5 py-2.5 text-sm font-semibold rounded-lg {% if not selected_category %}bg-blue-50 text-blue-700 font-bold{% else %}text-slate-700 hover:bg-slate-50{% endif %}">
+          <span>Barcha kitoblar</span>
+          <span class="bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full text-xs font-bold">{{ total_books }}</span>
+        </a>
+        {% for cat in categories %}
+        <a href="?category={{ cat.category }}{% if q %}&q={{ q }}{% endif %}" class="flex justify-between items-center px-3.5 py-2.5 text-sm font-semibold rounded-lg {% if selected_category == cat.category %}bg-blue-50 text-blue-700 font-bold{% else %}text-slate-700 hover:bg-slate-50{% endif %}">
+          <span class="truncate">{{ cat.category }}</span>
+          <span class="bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full text-xs font-bold ml-1">{{ cat.count }}</span>
+        </a>
+        {% endfor %}
+      </nav>
+    </div>
+  </aside>
+
+  <!-- O'ng taraf: Kitoblar ro'yxati -->
+  <section class="flex-1">
+    <h2 class="text-xl font-bold text-slate-900 mb-4">
+      {% if selected_category %}{{ selected_category }}{% elif q %}«{{ q }}» bo'yicha natijalar{% else %}Barcha Kitoblar{% endif %}
+      <span class="text-sm font-normal text-slate-400">({{ books.count }} ta)</span>
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {% for book in books %}
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <a href="{% url 'book_detail' book.id %}" class="relative h-56 bg-slate-100 flex items-center justify-center overflow-hidden group">
+          {% if book.cover_image %}
+          <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          {% else %}
+          <div class="w-full h-full bg-gradient-to-br {{ book.cover_color }} p-4 flex flex-col justify-between text-white"><h4 class="font-bold text-lg">{{ book.title }}</h4></div>
+          {% endif %}
+          <span class="absolute top-2.5 left-2.5 text-xs bg-slate-900/70 backdrop-blur-sm text-white px-2.5 py-0.5 rounded-md font-semibold">{{ book.category }}</span>
+        </a>
+        <div class="p-4 flex-1 flex flex-col justify-between">
+          <div>
+            <h4 class="font-bold text-base sm:text-lg text-slate-900 truncate hover:text-blue-600"><a href="{% url 'book_detail' book.id %}">{{ book.title }}</a></h4>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">{{ book.author }}</p>
+            <p class="text-sm text-slate-600 line-clamp-2 mt-2 leading-relaxed">{{ book.description }}</p>
+          </div>
+          <div class="border-t border-slate-100 pt-3 mt-3 flex items-center justify-between">
+            <span class="text-xs text-slate-500 font-medium">👁 {{ book.views_count }}</span>
+            <a href="{% url 'book_detail' book.id %}" class="py-1.5 px-4 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Mutolaa</a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-span-full bg-white rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500 text-base">Kitob topilmadi.</div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}
